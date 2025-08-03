@@ -1,6 +1,7 @@
 plugins {
     java
     `maven-publish`
+    id("com.github.johnrengelman.shadow") version "8.1.1"
     application
     idea
 }
@@ -19,6 +20,7 @@ dependencies {
     annotationProcessor("com.github.bsideup.jabel:jabel-javac-plugin:0.4.2")
     annotationProcessor("net.java.dev.jna:jna-platform:5.13.0") // required due to https://github.com/bsideup/jabel/issues/174
     compileOnly("com.github.bsideup.jabel:jabel-javac-plugin:0.4.2")
+    implementation("commons-cli:commons-cli:1.6.0")
 }
 
 group = "misterymob475"
@@ -63,15 +65,7 @@ tasks.named<JavaExec>("run") {
     standardInput = System.`in`
 }
 
-tasks.withType<Jar> {
-    manifest.attributes["Main-Class"] = "misterymob475.Main"
-
-    from(
-            configurations.runtimeClasspath
-                    .get()
-                    .map {
-                        if (it.isDirectory) it
-                        else zipTree(it)
-                    }
-    )
+tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
+    archiveFileName.set("LegacyWorldConverter-all.jar")
+    mergeServiceFiles() // merges META-INF/services properly
 }

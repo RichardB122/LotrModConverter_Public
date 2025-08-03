@@ -12,6 +12,7 @@ import convertors.Nether;
 import convertors.Overworld;
 import convertors.PlayerData;
 import misterymob475.data.Data;
+import org.apache.commons.cli.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,13 +30,33 @@ import static misterymob475.Util.renewedWorldSelector;
  * Main class
  */
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ParseException {
+        Optional<String> legacyWorld = Optional.empty();
+        Optional<String> renewedWorld = Optional.empty();
         ArrayList<Thread> arrThreads = new ArrayList<>();
-        System.out.println("Welcome to the Legacy to Renewed world convertor for Mevans LOTR mod by Mist475\nHow to use: unzip the zip file and place the created folder in your saves folder (or a different folder where you put your world).\nCreate a new world in the most recent version of renewed (1.16.5 as of now),\nCopy this world to the same folder as the world you want to upgrade.\nRun the .bat(windows) file or run via the command line.\nOpen the generated output in the same version of renewed as the new world you just created\nIf something doesn't work as planned please check if said feature is actually supported.\nOtherwise mention it on the #issues channel on my discord:https://discord.gg/PmH7dNns5t");
+        boolean silentMode = false;
+
+        if (args.length > 0) {
+            // support CLI options
+            Options options = new Options();
+            options.addOption("s", "silent", false, "Do not print the welcome text - useful for when running from another process in commandline");
+
+            CommandLineParser parser = new DefaultParser();
+            CommandLine cmd = parser.parse(options, args);
+
+            if (cmd.hasOption("s")) {
+                silentMode = true;
+            }
+        }
+
+        if (!silentMode) {
+            System.out.println("Welcome to the Legacy to Renewed world convertor for Mevans LOTR mod by Mist475\nHow to use: unzip the zip file and place the created folder in your saves folder (or a different folder where you put your world).\nCreate a new world in the most recent version of renewed (1.16.5 as of now),\nCopy this world to the same folder as the world you want to upgrade.\nRun the .bat(windows) file or run via the command line.\nOpen the generated output in the same version of renewed as the new world you just created\nIf something doesn't work as planned please check if said feature is actually supported.\nOtherwise mention it on the #issues channel on my discord:https://discord.gg/PmH7dNns5t");
+        }
+
         //used for copying data over
-        Optional<String> legacyWorld = legacyWorldSelector();
+        legacyWorld = legacyWorldSelector();
         //basis for the new level.dat (modifying data is easier in this case then generating from scratch)
-        Optional<String> renewedWorld = renewedWorldSelector();
+        renewedWorld = renewedWorldSelector();
 
         try {
             if (legacyWorld.isPresent() && renewedWorld.isPresent()) {
